@@ -17,7 +17,7 @@
     "alwaysStrict": true,
   },
   "files": [
-    "dump-tree.ts",
+    "src/dump-tree.ts",
   ],
   "include": [
     "@girs/atspi-2.0",

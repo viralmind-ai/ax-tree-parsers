@@ -2,7 +2,7 @@
   "name": "dump-tree",
   "version": "0.0.1",
   "description": "Dump the list of accessibility elements",
-  "main": "dump-tree.ts",
+  "main": "src/dump-tree.ts",
   "type": "module",
   "private": true,
   "scripts": {

@@ -1,7 +1,6 @@
 import Atspi from "@girs/atspi-2.0";
 import Gio from "@girs/gio-2.0";
 import GLib from "@girs/glib-2.0";
-import { writeFileSync } from "fs";
 
 function getLabel(accessible: Atspi.Accessible) {
   const relationSet = accessible.get_relation_set();

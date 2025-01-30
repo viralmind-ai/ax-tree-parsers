@@ -7,7 +7,7 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
     rollupOptions: {
-      input: "dump-tree.ts",
+      input: "src/dump-tree.ts",
       output: {
         entryFileNames: "dump-tree.js",
       },
