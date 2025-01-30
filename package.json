@@ -6,16 +6,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:app": "vite build",
-    "build": "npm run build:app",
-    "start:app": "gjs -m dist/dump-tree.js",
-    "debug:app": "gjs -m dist/dump-tree.js",
-    "start": "npm run build && npm run start:app",
-    "validate": "npm run validate:types && npm run validate:app",
-    "validate:types": "tsc --project tsconfig.types.json",
-    "validate:app": "tsc --noEmit",
-    "clear": "rm -rf dist"
+    "build": "vite build",
+    "start": "gjs -m dist/dump-tree.js"
   },
   "license": "MIT",
   "devDependencies": {
