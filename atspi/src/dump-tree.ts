@@ -2,6 +2,19 @@ import Atspi from "@girs/atspi-2.0";
 import Gio from "@girs/gio-2.0";
 import GLib from "@girs/glib-2.0";
 
+interface Node {
+  name: string | null;
+  role: string;
+  description: string;
+  bbox: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  children: Node[];
+}
+
 function getLabel(accessible: Atspi.Accessible) {
   const relationSet = accessible.get_relation_set();
   if (!relationSet) return null;
@@ -14,56 +27,79 @@ function getLabel(accessible: Atspi.Accessible) {
   return null;
 }
 
-function formatInfo(accessible: Atspi.Accessible) {
+function formatInfo(accessible: Atspi.Accessible): Node {
   let name = accessible.get_name();
   if (!name) name = getLabel(accessible);
   const roleName = accessible.get_role_name()!;
   const description = accessible.get_description()!;
 
-  const bbox = {
+  const bbox: Node["bbox"] = {
     x: 0,
     y: 0,
     width: 0,
     height: 0,
   };
+  // @ts-ignore
   if (accessible.get_component) {
-    const rect: Atspi.Rect = (
-      accessible.get_component() as Atspi.Component
-    ).get_extents(Atspi.CoordType.SCREEN);
+    let coordType: Atspi.CoordType;
+
+    switch (roleName) {
+      case Atspi.Role.APPLICATION.toString():
+        coordType = Atspi.CoordType.SCREEN;
+        break;
+      case Atspi.Role.WINDOW.toString():
+        coordType = Atspi.CoordType.SCREEN;
+        break;
+      case Atspi.Role.FRAME.toString():
+        coordType = Atspi.CoordType.WINDOW;
+        break;
+      default:
+        coordType = Atspi.CoordType.PARENT;
+        break;
+    }
+
+    const rect: Atspi.Rect = //@ts-ignore
+      (accessible.get_component() as Atspi.Component)?.get_extents(coordType);
     bbox.x = rect.x;
     bbox.y = rect.y;
     bbox.width = rect.width;
     bbox.height = rect.height;
   }
 
-  return `(${name}, ${roleName}, ${description}, ${JSON.stringify(bbox)})`;
+  return {
+    name,
+    role: roleName,
+    description,
+    bbox,
+    children: [],
+  };
 }
 
-function dumpNodeContent(node: Atspi.Accessible, padding: string) {
-  let newPadding = padding + "  ";
-
+function dumpNodeContent(node: Atspi.Accessible): Node {
   const nodeInfo = formatInfo(node);
-
-  out += padding + nodeInfo + "\n";
 
   for (let i = 0; i < node.get_child_count(); i++) {
     const child: Atspi.Accessible | null = node.get_child_at_index(i);
 
     if (!child) continue;
 
-    if (child.get_state_set().contains(Atspi.StateType.VISIBLE))
-      dumpNodeContent(child, newPadding);
+    if (child.get_state_set().contains(Atspi.StateType.VISIBLE)) {
+      nodeInfo.children.push(dumpNodeContent(child));
+    }
   }
+
+  return nodeInfo;
 }
 
-let out = "";
 async function main() {
   Atspi.init();
 
+  let out: Node[] = [];
   const desktop = Atspi.get_desktop(0);
   for (let i = 0, app; (app = desktop.get_child_at_index(i)); i++) {
-    dumpNodeContent(app, "  ");
+    out.push(dumpNodeContent(app));
   }
+  return out;
 }
 
 Gio._promisify(Gio.File.prototype, "copy_async");
@@ -92,14 +128,14 @@ Gio._promisify(Gio.InputStream.prototype, "read_bytes_async");
 /* Gio.OutputStream */
 Gio._promisify(Gio.OutputStream.prototype, "write_bytes_async");
 
-main().then(async () => {
+main().then(async (out) => {
   try {
     const file = Gio.File.new_for_path("out.txt");
     const enc = new TextEncoder();
-    const bytes = new GLib.Bytes(enc.encode(out));
+    const bytes = new GLib.Bytes(enc.encode(JSON.stringify(out, null, 2)));
 
     // Using the synchronous version for simplicity
-    const [success, etag] = file.replace_contents(
+    const [success] = file.replace_contents(
       //@ts-ignore
       bytes.get_data(),
       null, // etag
