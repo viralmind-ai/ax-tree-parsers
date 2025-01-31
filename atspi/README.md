@@ -6,6 +6,17 @@ Extends [at-spi2-examples](https://github.com/infapi00/at-spi2-examples/tree/mas
 
 This will result in `out.txt` in the current working directory that contains the entire tree for the current desktop.
 
+Install required dependencies.
+
+```bash
+sudo apt-get install \
+  build-essential git \
+  gobject-introspection \
+  libgirepository1.0-dev \
+  libcairo2 \
+  libcairo2-dev
+```
+
 Building is only necessary once.
 
 ```bash

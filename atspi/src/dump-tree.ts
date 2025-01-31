@@ -18,9 +18,25 @@ function formatInfo(accessible: Atspi.Accessible) {
   let name = accessible.get_name();
   if (!name) name = getLabel(accessible);
   const roleName = accessible.get_role_name()!;
-  print(accessible.attributes);
+  const description = accessible.get_description()!;
 
-  return `(${name}, ${roleName})`;
+  const bbox = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  };
+  if (accessible.get_component) {
+    const rect: Atspi.Rect = (
+      accessible.get_component() as Atspi.Component
+    ).get_extents(Atspi.CoordType.SCREEN);
+    bbox.x = rect.x;
+    bbox.y = rect.y;
+    bbox.width = rect.width;
+    bbox.height = rect.height;
+  }
+
+  return `(${name}, ${roleName}, ${description}, ${JSON.stringify(bbox)})`;
 }
 
 function dumpNodeContent(node: Atspi.Accessible, padding: string) {
