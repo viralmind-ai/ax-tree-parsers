@@ -8,7 +8,6 @@ All scripts output a JSON tree with the following format.
 [
   {
     "name": "Application Name",
-    // tree items made up of many nested children.
     "tree": {
       "name": "item_name",
       "role": "item_role",
