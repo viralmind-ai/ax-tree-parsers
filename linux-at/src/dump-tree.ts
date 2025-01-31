@@ -68,7 +68,7 @@ function formatInfo(accessible: Atspi.Accessible): Node {
       bbox.height = rect.height;
     }
   } catch (e) {
-    print(e);
+    // print(e);
   }
 
   return {
@@ -137,7 +137,7 @@ Gio._promisify(Gio.OutputStream.prototype, "write_bytes_async");
 // Parse command line arguments
 let outFile: string | null = null;
 for (let i = 0; i < ARGV.length; i++) {
-  if (ARGV[i] === '-o' || ARGV[i] === '--out') {
+  if (ARGV[i] === "-o" || ARGV[i] === "--out") {
     outFile = ARGV[i + 1] || null;
     break;
   }

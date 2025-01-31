@@ -30,6 +30,7 @@ All scripts output a JSON tree with the following format.
         libgirepository1.0-dev \
         libcairo2 \
         libcairo2-dev
+      npm install
     ```
 
 2. Build the GTK+ JS file from typescript.

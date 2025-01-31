@@ -20,6 +20,7 @@ sudo apt-get install \
 Building is only necessary once.
 
 ```bash
+npm install
 npm run build
 npm run start
 ```
