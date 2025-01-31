@@ -39,19 +39,15 @@ for app in app_names:
     'children': get_tree(bundle)
   })
 
-# Parse command line arguments
 parser = argparse.ArgumentParser(description='Extract accessibility tree from macOS applications')
 parser.add_argument('-o', '--out', help='Output file path (defaults to stdout)')
 args = parser.parse_args()
 
-# Convert output to JSON string
 json_output = json.dumps(out, indent=2)
 
 if args.out:
-    # Write to file if output path specified
     with open(args.out, 'w') as f:
         f.write(json_output)
     print(f"Accessibility tree exported to {args.out}")
 else:
-    # Write to stdout by default
     print(json_output)
