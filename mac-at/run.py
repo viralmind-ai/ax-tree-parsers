@@ -1,4 +1,5 @@
 import json
+import sys
 from macapptree import get_app_bundle, get_tree
 
 from Quartz import (
@@ -31,12 +32,16 @@ for app in app_names:
   bundle = get_app_bundle(app)
   print("Collecting tree for", app)
   out.append({
-    'application': app,
-    'tree': get_tree(bundle)
+    'name': app,
+    'role': 'application',
+    'description': '',
+    'value': '',
+    'bbox': {'x': 0, 'y': 0, 'width': 0, 'height': 0},
+    'children': get_tree(bundle)
   })
 
-f = open("tree.json", "w")
+f = open(sys.argv[1] or "out.json", "w")
 f.write(json.dumps(out))
 f.close()
 
-print("Accessibility tree exported to tree.json")
+print(f"Accessibility tree exported to {sys.argv[1]}")

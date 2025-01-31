@@ -7,15 +7,12 @@ All scripts output a JSON tree with the following format.
 ```json
 [
   {
-    "name": "Application Name",
-    "tree": {
       "name": "item_name",
       "role": "item_role",
       "description": "item_desc",
       "value": "item_value",
-      "bbox": ["x", "y", "width", "height"],
+      "bbox": { "x": 0, "y": 0, "width": 0 , "height": 0 },
       "children": ["new_tree_item"]
-    }
   }
 ]
 ```
