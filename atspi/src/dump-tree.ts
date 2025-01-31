@@ -136,7 +136,7 @@ Gio._promisify(Gio.OutputStream.prototype, "write_bytes_async");
 
 main().then(async (out) => {
   try {
-    const file = Gio.File.new_for_path(process.argv[3] || "out.json");
+    const file = Gio.File.new_for_path(ARGV[3] || "out.json");
     const enc = new TextEncoder();
     const bytes = new GLib.Bytes(enc.encode(JSON.stringify(out, null, 2)));
 
@@ -151,7 +151,7 @@ main().then(async (out) => {
     );
 
     if (success) {
-      print("Accessibility tree exported to", process.argv[3] || "out.json");
+      print("Accessibility tree exported to", ARGV[3] || "out.json");
     }
   } catch (error) {
     print(`Error writing file: ${(error as Error).message}`);
