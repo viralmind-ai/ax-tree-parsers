@@ -97,7 +97,7 @@ function dumpNodeContent(node: Atspi.Accessible): Node {
   return nodeInfo;
 }
 
-async function main() {
+async function main(outFile: string | null) {
   Atspi.init();
 
   let out: Node[] = [];
@@ -134,26 +134,43 @@ Gio._promisify(Gio.InputStream.prototype, "read_bytes_async");
 /* Gio.OutputStream */
 Gio._promisify(Gio.OutputStream.prototype, "write_bytes_async");
 
-main().then(async (out) => {
-  try {
-    const file = Gio.File.new_for_path(ARGV[0] || "out.json");
-    const enc = new TextEncoder();
-    const bytes = new GLib.Bytes(enc.encode(JSON.stringify(out, null, 2)));
+// Parse command line arguments
+let outFile: string | null = null;
+for (let i = 0; i < ARGV.length; i++) {
+  if (ARGV[i] === '-o' || ARGV[i] === '--out') {
+    outFile = ARGV[i + 1] || null;
+    break;
+  }
+}
 
-    // Using the synchronous version for simplicity
-    const [success] = file.replace_contents(
-      //@ts-ignore
-      bytes.get_data(),
-      null, // etag
-      false, // make_backup
-      Gio.FileCreateFlags.REPLACE_DESTINATION,
-      null // cancellable
-    );
+main(outFile).then(async (out) => {
+  const jsonOutput = JSON.stringify(out, null, 2);
 
-    if (success) {
-      print("Accessibility tree exported to", ARGV[0] || "out.json");
+  if (outFile) {
+    try {
+      const file = Gio.File.new_for_path(outFile);
+      const enc = new TextEncoder();
+      const bytes = new GLib.Bytes(enc.encode(jsonOutput));
+
+      // Using the synchronous version for simplicity
+      const [success] = file.replace_contents(
+        //@ts-ignore
+        bytes.get_data(),
+        null, // etag
+        false, // make_backup
+        Gio.FileCreateFlags.REPLACE_DESTINATION,
+        null // cancellable
+      );
+
+      if (success) {
+        print("Accessibility tree exported to", outFile);
+      }
+    } catch (error) {
+      print(`Error writing file: ${(error as Error).message}`);
+      process.exit(1);
     }
-  } catch (error) {
-    print(`Error writing file: ${(error as Error).message}`);
+  } else {
+    // Write to stdout by default
+    print(jsonOutput);
   }
 });

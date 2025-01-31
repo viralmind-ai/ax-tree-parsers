@@ -17,7 +17,7 @@ All scripts output a JSON tree with the following format.
 ]
 ```
 
-## linux-at:  [GNOME atspi-2](https://docs.gtk.org/atspi2/)
+## linux-at:  [GNOME Atspi-2](https://docs.gtk.org/atspi2/)
 
 ### Usage
 

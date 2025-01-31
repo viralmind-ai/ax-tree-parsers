@@ -1,5 +1,6 @@
 import json
 import sys
+import argparse
 from macapptree import get_app_bundle, get_tree
 
 from Quartz import (
@@ -25,12 +26,10 @@ for window in windowList:
     if key == kCGWindowOwnerName and real == True:
       if value not in INVALID_WINDOWS:
         app_names.append(value)
-print("Found the following open applications:", list(app_names))
 
 out = []
 for app in app_names:
   bundle = get_app_bundle(app)
-  print("Collecting tree for", app)
   out.append({
     'name': app,
     'role': 'application',
@@ -40,8 +39,19 @@ for app in app_names:
     'children': get_tree(bundle)
   })
 
-f = open(sys.argv[1] or "out.json", "w")
-f.write(json.dumps(out))
-f.close()
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Extract accessibility tree from macOS applications')
+parser.add_argument('-o', '--out', help='Output file path (defaults to stdout)')
+args = parser.parse_args()
 
-print(f"Accessibility tree exported to {sys.argv[1] or "out.json"}")
+# Convert output to JSON string
+json_output = json.dumps(out, indent=2)
+
+if args.out:
+    # Write to file if output path specified
+    with open(args.out, 'w') as f:
+        f.write(json_output)
+    print(f"Accessibility tree exported to {args.out}")
+else:
+    # Write to stdout by default
+    print(json_output)
