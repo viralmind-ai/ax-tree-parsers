@@ -18,6 +18,7 @@ function formatInfo(accessible: Atspi.Accessible) {
   let name = accessible.get_name();
   if (!name) name = getLabel(accessible);
   const roleName = accessible.get_role_name()!;
+  print(accessible.attributes);
 
   return `(${name}, ${roleName})`;
 }
