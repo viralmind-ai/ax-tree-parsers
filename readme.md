@@ -1,40 +1,28 @@
-# Atspi 2 Parser
+# Accessibility Tree Parsers
 
-Extends [at-spi2-examples](https://github.com/infapi00/at-spi2-examples/tree/master/typescript) to dump the entire Atspi 2 tree in an output file.
+This repository contains scripts to extract the accessibility trees from three of the more popular operating system desktops.
 
-## Running
+All scripts output a JSON tree with the following format.
 
-This will result in `out.txt` in the current working directory that contains the entire tree for the current desktop.
-
-Building is only necessary once.
-
-```bash
-npm run build
-npm run start
+```json
+[
+  {
+    "name": "Application Name",
+    // tree items made up of many nested children.
+    "tree": {
+      "name": "item_name",
+      "role": "item_role",
+      "description": "item_desc",
+      "value": "item_value",
+      "bbox": ["x", "y", "width", "height"],
+      "children": ["new_tree_item"]
+    }
+  }
+]
 ```
 
-Original readme follows.
+## atspi - (GNOME: [atspi-2](https://docs.gtk.org/atspi2/))
 
--------
+## mac-at - (MacOS: [Accessibility](https://developer.apple.com/documentation/accessibility))
 
-## Atspi with GJS and Typescript
-
-You can use write an atspi project using typescript by using vite and babel. This will transpile the typescript code into javascript which can be ran with gjs. Note that most node packages will not run in this environment.
-
-Typescript types for gjs come from [ts-for-gir](https://github.com/gjsify/ts-for-gir). These can be npm installed since they do not depend on node.
-
-### How to Run the Example
-
-[`dump-tree.ts`](dump-tree.ts) dumps the accessibility hiearchy tree for a given application.
-
-Install the packages and run the compiled output from the command line with gjs. Replace `"Firefox"` with the app name of your choice.
-
-```bash
-npm i
-npm run build
-gjs -m dist/main.js "Firefox"
-```
-
-The `-m` flag with gjs is used to allow ES modules.
-
-You can also run `npm run start "Firefox"`. Note that if your npm version is packaged as a snap, you may have accessibility permission issues.
+## win-at - (Windows: [UIA](https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview))
