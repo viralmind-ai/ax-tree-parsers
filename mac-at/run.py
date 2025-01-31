@@ -44,4 +44,4 @@ f = open(sys.argv[1] or "out.json", "w")
 f.write(json.dumps(out))
 f.close()
 
-print(f"Accessibility tree exported to {sys.argv[1]}")
+print(f"Accessibility tree exported to {sys.argv[1] or "out.json"}")
