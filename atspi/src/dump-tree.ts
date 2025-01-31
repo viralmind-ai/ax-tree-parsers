@@ -39,31 +39,35 @@ function formatInfo(accessible: Atspi.Accessible): Node {
     width: 0,
     height: 0,
   };
-  // @ts-ignore
-  if (accessible.get_component) {
-    let coordType: Atspi.CoordType;
+  try {
+    // @ts-ignore
+    if (accessible.get_component) {
+      let coordType: Atspi.CoordType;
 
-    switch (roleName) {
-      case Atspi.Role.APPLICATION.toString():
-        coordType = Atspi.CoordType.SCREEN;
-        break;
-      case Atspi.Role.WINDOW.toString():
-        coordType = Atspi.CoordType.SCREEN;
-        break;
-      case Atspi.Role.FRAME.toString():
-        coordType = Atspi.CoordType.WINDOW;
-        break;
-      default:
-        coordType = Atspi.CoordType.PARENT;
-        break;
+      switch (roleName) {
+        case Atspi.Role.APPLICATION.toString():
+          coordType = Atspi.CoordType.SCREEN;
+          break;
+        case Atspi.Role.WINDOW.toString():
+          coordType = Atspi.CoordType.SCREEN;
+          break;
+        case Atspi.Role.FRAME.toString():
+          coordType = Atspi.CoordType.WINDOW;
+          break;
+        default:
+          coordType = Atspi.CoordType.PARENT;
+          break;
+      }
+
+      const rect: Atspi.Rect = //@ts-ignore
+        (accessible.get_component() as Atspi.Component)?.get_extents(coordType);
+      bbox.x = rect.x;
+      bbox.y = rect.y;
+      bbox.width = rect.width;
+      bbox.height = rect.height;
     }
-
-    const rect: Atspi.Rect = //@ts-ignore
-      (accessible.get_component() as Atspi.Component)?.get_extents(coordType);
-    bbox.x = rect.x;
-    bbox.y = rect.y;
-    bbox.width = rect.width;
-    bbox.height = rect.height;
+  } catch (e) {
+    print(e);
   }
 
   return {
