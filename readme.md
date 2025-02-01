@@ -17,7 +17,7 @@ All scripts output a JSON tree with the following format.
 ]
 ```
 
-## linux-at: [GNOME Atspi-2](https://docs.gtk.org/atspi2/)
+## linux-ax: [GNOME Atspi-2](https://docs.gtk.org/atspi2/)
 
 ### Usage
 
@@ -45,7 +45,7 @@ All scripts output a JSON tree with the following format.
     npm start
     ```
 
-## mac-at:  [MacOS Accessibility](https://developer.apple.com/documentation/accessibility)
+## mac-ax:  [MacOS Accessibility](https://developer.apple.com/documentation/accessibility)
 
 ### Usage
 
@@ -69,10 +69,9 @@ All scripts output a JSON tree with the following format.
 3. Run the script and output to `tree.json`
 
     ```bash
-      cd ..
-      python3 run.py tree.json
+      python3 dump-tree.py tree.json
     ```
 
-## win-at:  [Windows UIA](https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview)
+## win-ax:  [Windows UIA](https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview)
 
 Coming soon!

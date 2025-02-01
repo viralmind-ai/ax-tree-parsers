@@ -1,7 +1,7 @@
 {
-  "name": "dump-tree",
+  "name": "linux-ax-parser",
   "version": "0.0.1",
-  "description": "Dump the list of accessibility elements",
+  "description": "Dumps a JSON of the linux accessibility tree.",
   "main": "src/dump-tree.ts",
   "type": "module",
   "private": true,

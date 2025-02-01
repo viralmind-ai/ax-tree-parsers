@@ -1,4 +1,4 @@
-# Atspi 2 Parser
+# Linux-AX: Atspi 2 Parser
 
 Extends [at-spi2-examples](https://github.com/infapi00/at-spi2-examples/tree/master/typescript) to dump the entire Atspi 2 tree in an output file.
 

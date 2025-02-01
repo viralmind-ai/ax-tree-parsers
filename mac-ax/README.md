@@ -1,4 +1,4 @@
-# Mac-AT: MacOS Accessibility Tree Parser
+# Mac-AX: MacOS Accessibility Tree Parser
 
 The MacOS accessibility parser uses a modified version of [macapptree](https://github.com/MacPaw/macapptree) (found in the `macapptree` directory) to parse the tree.
 
