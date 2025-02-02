@@ -1,5 +1,4 @@
 import json
-import sys
 import argparse
 from macapptree import get_app_bundle, get_tree
 
