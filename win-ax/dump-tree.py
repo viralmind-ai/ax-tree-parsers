@@ -124,7 +124,7 @@ def get_all_windows_accessibility_tree():
 def save_accessibility_tree(output_file=None):
     tree = get_all_windows_accessibility_tree()
     
-    json_output = json.dumps(tree, indent=2, ensure_ascii=False)
+    json_output = json.dumps(tree, ensure_ascii=False)
     
     if output_file:
         try:

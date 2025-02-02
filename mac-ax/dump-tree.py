@@ -42,7 +42,7 @@ parser = argparse.ArgumentParser(description='Extract accessibility tree from ma
 parser.add_argument('-o', '--out', help='Output file path (defaults to stdout)')
 args = parser.parse_args()
 
-json_output = json.dumps(out, indent=2)
+json_output = json.dumps(out)
 
 if args.out:
     with open(args.out, 'w') as f:
