@@ -30,12 +30,15 @@ All scripts output a JSON tree with the following format.
         libgirepository1.0-dev \
         libcairo2 \
         libcairo2-dev
-      npm install
     ```
+
+If using from a release, once dependencies are installed, run `gjs -m dump-tree.js` and ignore the rest of the steps.
 
 2. Build the GTK+ JS file from typescript.
 
     ```bash
+      # make sure npm deps are installed
+      npm install
       npm run build
     ```
 
@@ -53,7 +56,7 @@ All scripts output a JSON tree with the following format.
 
     ```bash
       # conda
-      conda create --name mac-at python=3.12
+      conda create --name mac-at
       conda activate mac-at
       # or others
     ```
@@ -69,9 +72,30 @@ All scripts output a JSON tree with the following format.
 3. Run the script and output to `tree.json`
 
     ```bash
-      python3 dump-tree.py tree.json
+      python3 dump-tree.py -o tree.json
     ```
 
 ## win-ax:  [Windows UIA](https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview)
 
-Coming soon!
+### Usage
+
+1. Setup your virtal python env of choice.
+
+    ```bash
+      # conda
+      conda create --name win-ax
+      conda activate win-ax
+      # or others
+    ```
+
+2. Install requirements.
+
+    ```bash
+      pip3 install -r requirements.txt
+    ```
+
+3. Run the script and output to `tree.json`
+
+    ```bash
+      python3 dump-tree.py -o tree.json
+    ```

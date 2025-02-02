@@ -4,8 +4,6 @@ Extends [at-spi2-examples](https://github.com/infapi00/at-spi2-examples/tree/mas
 
 ## Running
 
-This will result in `out.txt` in the current working directory that contains the entire tree for the current desktop.
-
 Install required dependencies.
 
 ```bash
@@ -22,8 +20,10 @@ Building is only necessary once.
 ```bash
 npm install
 npm run build
-npm run start
+npm run start -o out.json
 ```
+
+Check `out.json` for your accessibilty tree!
 
 Original readme follows.
 

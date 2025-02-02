@@ -12,13 +12,13 @@ pip3 install -r requirements.txt
 pip3 install -e .
 ```
 
-Run the script
+Run the script. Remove `-o` to output to stdout.
 
 ```bash
-python3 run.py
+python3 dump-tree.py -o out.json
 ```
 
-The tree will output in `tree.json` with the following structure:
+The tree will output in `out.json` with the following structure:
 
 ```json
 [
