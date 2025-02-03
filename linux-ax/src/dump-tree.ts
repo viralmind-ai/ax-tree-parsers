@@ -1,6 +1,7 @@
 import Atspi from "@girs/atspi-2.0";
 import Gio from "@girs/gio-2.0";
 import GLib from "@girs/glib-2.0";
+import { TextEncoder } from 'util';
 
 interface Node {
   name: string | null;
@@ -14,6 +15,14 @@ interface Node {
     height: number;
   };
   children: Node[];
+}
+
+interface EventOutput {
+  time: number;
+  data: {
+    duration: number;
+    tree: Node[];
+  };
 }
 
 function getLabel(accessible: Atspi.Accessible) {
@@ -68,7 +77,7 @@ function formatInfo(accessible: Atspi.Accessible): Node {
       bbox.height = rect.height;
     }
   } catch (e) {
-    // print(e);
+    // console.error(e);
   }
 
   return {
@@ -97,15 +106,27 @@ function dumpNodeContent(node: Atspi.Accessible): Node {
   return nodeInfo;
 }
 
-async function main(outFile: string | null) {
+async function main(outFile: string | null, eventFormat: boolean = false) {
   Atspi.init();
 
+  const startTime = Date.now(); // JS timestamp in ms
   let out: Node[] = [];
   const desktop = Atspi.get_desktop(0);
   for (let i = 0, app; (app = desktop.get_child_at_index(i)); i++) {
     out.push(dumpNodeContent(app));
   }
-  return out;
+  const endTime = Date.now();
+  const duration = endTime - startTime;
+
+  const output = eventFormat ? {
+    time: startTime,
+    data: {
+      duration,
+      tree: out
+    }
+  } : out;
+
+  return output;
 }
 
 Gio._promisify(Gio.File.prototype, "copy_async");
@@ -136,14 +157,18 @@ Gio._promisify(Gio.OutputStream.prototype, "write_bytes_async");
 
 // Parse command line arguments
 let outFile: string | null = null;
-for (let i = 0; i < ARGV.length; i++) {
-  if (ARGV[i] === "-o" || ARGV[i] === "--out") {
-    outFile = ARGV[i + 1] || null;
-    break;
+let eventFormat: boolean = false;
+
+const args = process.argv.slice(2);
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "-o" || args[i] === "--out") {
+    outFile = args[i + 1] || null;
+  } else if (args[i] === "-e" || args[i] === "--event") {
+    eventFormat = true;
   }
 }
 
-main(outFile).then(async (out) => {
+main(outFile, eventFormat).then(async (out) => {
   const jsonOutput = JSON.stringify(out, null, 2);
 
   if (outFile) {
@@ -161,16 +186,12 @@ main(outFile).then(async (out) => {
         Gio.FileCreateFlags.REPLACE_DESTINATION,
         null // cancellable
       );
-
-      if (success) {
-        print("Accessibility tree exported to", outFile);
-      }
     } catch (error) {
-      print(`Error writing file: ${(error as Error).message}`);
+      console.error(`Error writing file: ${(error as Error).message}`);
       process.exit(1);
     }
   } else {
     // Write to stdout by default
-    print(jsonOutput);
+    console.log(jsonOutput);
   }
 });

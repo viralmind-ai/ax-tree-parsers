@@ -1,2 +1,17 @@
+# Output files
 out.json
 .DS_Store
+
+# Build artifacts
+**/build/
+**/dist/
+**/*.spec
+**/__pycache__/
+
+# Binary output directory
+!target/
+target/*
+!target/windows-x64/
+!target/linux-x64/
+!target/macos-x64/
+!target/macos-arm64/
