@@ -41,6 +41,7 @@ cp dist/dump-tree.js ../target/linux-x64/
 ```
 
 To run the Linux binary, GJS and the GNOME dependencies must be installed:
+
 ```bash
 sudo apt-get install gjs gobject-introspection libgirepository1.0-dev
 gjs -m target/linux-x64/dump-tree.js
@@ -49,10 +50,11 @@ gjs -m target/linux-x64/dump-tree.js
 ### macOS Binaries
 
 For Intel Macs:
+
 ```bash
 cd mac-ax
 pip install pyinstaller
-pyinstaller --onefile dump-tree.py
+pyinstaller --add-data "macapptree/macapptree:macapptree" --hidden-import macapptree dump-tree.py --onefile dump-tree.py
 # Binary will be in mac-ax/dist/dump-tree
 # Copy to target directory
 mkdir -p ../target/macos-x64
@@ -60,10 +62,11 @@ cp dist/dump-tree ../target/macos-x64/
 ```
 
 For Apple Silicon Macs:
+
 ```bash
 cd mac-ax
 pip install pyinstaller
-pyinstaller --onefile --target-arch arm64 dump-tree.py
+pyinstaller --add-data "macapptree/macapptree:macapptree" --hidden-import macapptree dump-tree.py --onefile --target-arch arm64 dump-tree.py
 # Binary will be in mac-ax/dist/dump-tree
 # Copy to target directory
 mkdir -p ../target/macos-arm64
@@ -71,6 +74,7 @@ cp dist/dump-tree ../target/macos-arm64/
 ```
 
 All binaries support both file output and console output:
+
 ```bash
 ./dump-tree         # outputs to console
 ./dump-tree -o file.json  # outputs to file
