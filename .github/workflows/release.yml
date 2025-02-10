@@ -7,39 +7,17 @@ on:
     branches: [main]
 
 jobs:
-  build:
-    name: Build ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            platform: windows
-            artifact: dump-tree.exe
-            asset_name: dump-tree-windows-x64.exe
-          - os: ubuntu-latest
-            platform: linux
-            artifact: dump-tree.js
-            asset_name: dump-tree-linux-x64-arm64.js
-          - os: macos-latest
-            platform: macos-x64
-            artifact: dump-tree
-            asset_name: dump-tree-macos-x64
-          - os: macos-latest
-            platform: macos-arm
-            artifact: dump-tree
-            asset_name: dump-tree-macos-arm64
-
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Get version
         id: get_version
         run: |
-          # Get latest release tag
           git fetch --tags
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          # Increment patch version
           MAJOR=$(echo $LATEST_TAG | cut -d. -f1)
           MINOR=$(echo $LATEST_TAG | cut -d. -f2)
           PATCH=$(echo $LATEST_TAG | cut -d. -f3)
@@ -48,11 +26,40 @@ jobs:
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
         shell: bash
 
+  build:
+    needs: version
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+            artifact_path: target/windows-x64/dump-tree.exe
+            artifact_name: dump-tree-${{ needs.version.outputs.version }}-windows-x64.exe
+          - os: ubuntu-latest
+            platform: linux
+            artifact_path: target/linux-x64/dump-tree.js
+            artifact_name: dump-tree-${{ needs.version.outputs.version }}-linux-x64-arm64.js
+          - os: macos-latest
+            platform: macos-x64
+            artifact_path: target/macos-x64/dump-tree
+            artifact_name: dump-tree-${{ needs.version.outputs.version }}-macos-x64
+          - os: macos-latest
+            platform: macos-arm
+            artifact_path: target/macos-arm64/dump-tree
+            artifact_name: dump-tree-${{ needs.version.outputs.version }}-macos-arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Set up Python
         if: matrix.platform == 'windows' || contains(matrix.platform, 'macos')
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
+          architecture: ${{ contains(matrix.platform, 'x64') && 'x64' || 'arm64' }}
 
       - name: Set up Node.js
         if: matrix.platform == 'linux'
@@ -78,9 +85,15 @@ jobs:
           cd win-ax
           pip install -r requirements.txt
           pip install pyinstaller
-          pyinstaller --onefile dump-tree.py
+          # Add verbose output and no confirm flag
+          pyinstaller --onefile --noconfirm --clean -v dump-tree.py
+          if ($LASTEXITCODE -ne 0) {
+            echo "PyInstaller failed with exit code $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
           mkdir -p ../target/windows-x64
           cp dist/dump-tree.exe ../target/windows-x64/
+        shell: pwsh
 
       - name: Build Linux
         if: matrix.platform == 'linux'
@@ -103,37 +116,32 @@ jobs:
           if [ "${{ matrix.platform }}" = "macos-arm" ]; then
             ARCH_FLAG="--target-arch arm64"
           fi
+          # Force pip to install packages matching target architecture
+          pip install --force-reinstall --only-binary :all: pillow
           pyinstaller --add-data "./macapptree/macapptree:macapptree" --onefile $ARCH_FLAG dump-tree.py
           TARGET_DIR="../target/macos-$([[ "${{ matrix.platform }}" = "macos-arm" ]] && echo "arm64" || echo "x64")"
           mkdir -p "$TARGET_DIR"
           cp dist/dump-tree "$TARGET_DIR/"
 
+      - name: Rename Binary
+        run: |
+          mv ${{ matrix.artifact_path }} ${{ matrix.artifact_name }}
+        shell: bash
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.asset_name }}
-          path: target/**/${{ matrix.artifact }}
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_name }}
+          compression-level: 0
 
   release:
-    needs: build
+    needs: [version, build]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Get version
-        id: get_version
-        run: |
-          git fetch --tags
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          MAJOR=$(echo $LATEST_TAG | cut -d. -f1)
-          MINOR=$(echo $LATEST_TAG | cut -d. -f2)
-          PATCH=$(echo $LATEST_TAG | cut -d. -f3)
-          NEW_PATCH=$((PATCH + 1))
-          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -144,14 +152,14 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          name: Release v${{ steps.get_version.outputs.version }}
+          tag_name: v${{ needs.version.outputs.version }}
+          name: Release v${{ needs.version.outputs.version }}
           draft: false
           prerelease: false
           files: |
-            artifacts/dump-tree-windows-x64.exe/dump-tree.exe
-            artifacts/dump-tree-linux-x64-arm64.js/dump-tree.js
-            artifacts/dump-tree-macos-x64/dump-tree
-            artifacts/dump-tree-macos-arm64/dump-tree
+            artifacts/dump-tree-${{ needs.version.outputs.version }}-windows-x64.exe
+            artifacts/dump-tree-${{ needs.version.outputs.version }}-linux-x64-arm64.js
+            artifacts/dump-tree-${{ needs.version.outputs.version }}-macos-x64
+            artifacts/dump-tree-${{ needs.version.outputs.version }}-macos-arm64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
