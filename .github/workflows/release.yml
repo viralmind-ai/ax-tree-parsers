@@ -135,20 +135,23 @@ jobs:
         if: contains(matrix.platform, 'macos')
         run: |
           cd mac-ax/macapptree
-          pip install -r requirements.txt
-          cd ..
-          pip install -r requirements.txt
-          pip install pyinstaller
-          ARCH_FLAG="--target-arch x86_64"
           if [ "${{ matrix.platform }}" = "macos-arm" ]; then
             ARCH_FLAG="--target-arch arm64"
-          fi
-          # Force pip to install packages matching target architecture
-          pip install --force-reinstall --only-binary :all: pillow
-          if [ "${{ matrix.platform }}" = "macos-arm" ]; then
+            pip install -r requirements.txt
+            cd ..
+            pip install -r requirements.txt
+            pip install pyinstaller
+            # Force pip to install packages matching target architecture
+            pip install --force-reinstall --only-binary :all: pillow
             pyinstaller --add-data "./macapptree/macapptree:macapptree" --noconfirm --onefile $ARCH_FLAG dump-tree.py
-          fi
-          if [ "${{ matrix.platform }}" = "macos-x64" ]; then
+          else
+            ARCH_FLAG="--target-arch x86_64"
+            arch --x86_64 pip install -r requirements.txt
+            cd ..
+            arch --x86_64 pip install -r requirements.txt
+            arch --x86_64 pip install pyinstaller
+            # Force pip to install packages matching target architecture
+            arch --x86_64 pip install --force-reinstall --only-binary :all: pillow
             arch --x86_64 pyinstaller --add-data "./macapptree/macapptree:macapptree" --noconfirm --onefile $ARCH_FLAG dump-tree.py
           fi
           TARGET_DIR="../target/macos-$([[ "${{ matrix.platform }}" = "macos-arm" ]] && echo "arm64" || echo "x64")"
