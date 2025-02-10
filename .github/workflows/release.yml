@@ -1,0 +1,157 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+            artifact: dump-tree.exe
+            asset_name: dump-tree-windows-x64.exe
+          - os: ubuntu-latest
+            platform: linux
+            artifact: dump-tree.js
+            asset_name: dump-tree-linux-x64-arm64.js
+          - os: macos-latest
+            platform: macos-x64
+            artifact: dump-tree
+            asset_name: dump-tree-macos-x64
+          - os: macos-latest
+            platform: macos-arm
+            artifact: dump-tree
+            asset_name: dump-tree-macos-arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version
+        id: get_version
+        run: |
+          # Get latest release tag
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          # Increment patch version
+          MAJOR=$(echo $LATEST_TAG | cut -d. -f1)
+          MINOR=$(echo $LATEST_TAG | cut -d. -f2)
+          PATCH=$(echo $LATEST_TAG | cut -d. -f3)
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Set up Python
+        if: matrix.platform == 'windows' || contains(matrix.platform, 'macos')
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        if: matrix.platform == 'linux'
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.18.2"
+
+      - name: Install Linux Dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gjs \
+            build-essential \
+            gobject-introspection \
+            libgirepository1.0-dev \
+            libcairo2 \
+            libcairo2-dev
+
+      - name: Build Windows
+        if: matrix.platform == 'windows'
+        run: |
+          cd win-ax
+          pip install -r requirements.txt
+          pip install pyinstaller
+          pyinstaller --onefile dump-tree.py
+          mkdir -p ../target/windows-x64
+          cp dist/dump-tree.exe ../target/windows-x64/
+
+      - name: Build Linux
+        if: matrix.platform == 'linux'
+        run: |
+          cd linux-ax
+          npm install
+          npm run build
+          mkdir -p ../target/linux-x64
+          cp dist/dump-tree.js ../target/linux-x64/
+
+      - name: Build macOS
+        if: contains(matrix.platform, 'macos')
+        run: |
+          cd mac-ax/macapptree
+          pip install -r requirements.txt
+          cd ..
+          pip install -r requirements.txt
+          pip install pyinstaller
+          ARCH_FLAG="--target-arch x86_64"
+          if [ "${{ matrix.platform }}" = "macos-arm" ]; then
+            ARCH_FLAG="--target-arch arm64"
+          fi
+          pyinstaller --add-data "./macapptree/macapptree:macapptree" --onefile $ARCH_FLAG dump-tree.py
+          TARGET_DIR="../target/macos-$([[ "${{ matrix.platform }}" = "macos-arm" ]] && echo "arm64" || echo "x64")"
+          mkdir -p "$TARGET_DIR"
+          cp dist/dump-tree "$TARGET_DIR/"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.asset_name }}
+          path: target/**/${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version
+        id: get_version
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          MAJOR=$(echo $LATEST_TAG | cut -d. -f1)
+          MINOR=$(echo $LATEST_TAG | cut -d. -f2)
+          PATCH=$(echo $LATEST_TAG | cut -d. -f3)
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/dump-tree-windows-x64.exe/dump-tree.exe
+            artifacts/dump-tree-linux-x64-arm64.js/dump-tree.js
+            artifacts/dump-tree-macos-x64/dump-tree
+            artifacts/dump-tree-macos-arm64/dump-tree
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
