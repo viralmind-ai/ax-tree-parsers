@@ -54,18 +54,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python (Windows)
-        if: matrix.platform == 'windows'
+      - name: Set up Python
+        if: matrix.platform == 'windows' || contains(matrix.platform, 'macos')
         uses: actions/setup-python@v4
         with:
           python-version: "3.9"
-
-      - name: Set up Python (macOS)
-        if: contains(matrix.platform, 'macos')
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
-          architecture: ${{ contains(matrix.platform, 'x64') && 'x64' || 'arm64' }}
 
       - name: Set up Node.js
         if: matrix.platform == 'linux'
