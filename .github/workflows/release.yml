@@ -58,7 +58,7 @@ jobs:
         if: matrix.platform == 'windows' || contains(matrix.platform, 'macos')
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.11"
           architecture: ${{ contains(matrix.platform, 'x64') && 'x64' || 'arm64' }}
 
       - name: Set up Node.js
@@ -83,16 +83,18 @@ jobs:
         if: matrix.platform == 'windows'
         run: |
           cd win-ax
-          pip install -r requirements.txt
-          pip install pyinstaller
+          python -m pip install --upgrade pip
+          # Install requirements with verbose output and retry
+          python -m pip install -v -r requirements.txt || python -m pip install -v -r requirements.txt
+          python -m pip install -v pyinstaller
           # Add verbose output and no confirm flag
-          pyinstaller --onefile --noconfirm --clean -v dump-tree.py
+          python -m PyInstaller --onefile --noconfirm --clean -v dump-tree.py
           if ($LASTEXITCODE -ne 0) {
             echo "PyInstaller failed with exit code $LASTEXITCODE"
             exit $LASTEXITCODE
           }
-          mkdir -p ../target/windows-x64
-          cp dist/dump-tree.exe ../target/windows-x64/
+          New-Item -ItemType Directory -Force -Path ../target/windows-x64
+          Copy-Item dist/dump-tree.exe ../target/windows-x64/
         shell: pwsh
 
       - name: Build Linux
@@ -118,7 +120,7 @@ jobs:
           fi
           # Force pip to install packages matching target architecture
           pip install --force-reinstall --only-binary :all: pillow
-          pyinstaller --add-data "./macapptree/macapptree:macapptree" --onefile $ARCH_FLAG dump-tree.py
+          pyinstaller --add-data "./macapptree/macapptree:macapptree" --noconfirm --onefile $ARCH_FLAG dump-tree.py
           TARGET_DIR="../target/macos-$([[ "${{ matrix.platform }}" = "macos-arm" ]] && echo "arm64" || echo "x64")"
           mkdir -p "$TARGET_DIR"
           cp dist/dump-tree "$TARGET_DIR/"
