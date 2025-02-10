@@ -54,7 +54,7 @@ For Intel Macs:
 ```bash
 cd mac-ax
 pip install pyinstaller
-pyinstaller --add-data "macapptree/macapptree:macapptree" --hidden-import macapptree dump-tree.py --onefile dump-tree.py
+pyinstaller --add-data "macapptree/macapptree:macapptree" --hidden-import macapptree --onefile --target-arch x86_64 dump-tree.py
 # Binary will be in mac-ax/dist/dump-tree
 # Copy to target directory
 mkdir -p ../target/macos-x64
@@ -66,7 +66,7 @@ For Apple Silicon Macs:
 ```bash
 cd mac-ax
 pip install pyinstaller
-pyinstaller --add-data "macapptree/macapptree:macapptree" --hidden-import macapptree dump-tree.py --onefile --target-arch arm64 dump-tree.py
+pyinstaller --add-data "macapptree/macapptree:macapptree" --hidden-import macapptree --onefile --target-arch arm64 dump-tree.py
 # Binary will be in mac-ax/dist/dump-tree
 # Copy to target directory
 mkdir -p ../target/macos-arm64
