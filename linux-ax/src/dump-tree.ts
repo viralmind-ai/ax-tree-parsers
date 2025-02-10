@@ -1,7 +1,6 @@
 import Atspi from "@girs/atspi-2.0";
 import Gio from "@girs/gio-2.0";
 import GLib from "@girs/glib-2.0";
-import { TextEncoder } from 'util';
 
 interface Node {
   name: string | null;
@@ -118,13 +117,15 @@ async function main(outFile: string | null, eventFormat: boolean = false) {
   const endTime = Date.now();
   const duration = endTime - startTime;
 
-  const output = eventFormat ? {
-    time: startTime,
-    data: {
-      duration,
-      tree: out
-    }
-  } : out;
+  const output = eventFormat
+    ? {
+        time: startTime,
+        data: {
+          duration,
+          tree: out,
+        },
+      }
+    : out;
 
   return output;
 }
@@ -159,7 +160,7 @@ Gio._promisify(Gio.OutputStream.prototype, "write_bytes_async");
 let outFile: string | null = null;
 let eventFormat: boolean = false;
 
-const args = process.argv.slice(2);
+const args = ARGV;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "-o" || args[i] === "--out") {
     outFile = args[i + 1] || null;
