@@ -145,7 +145,12 @@ jobs:
           fi
           # Force pip to install packages matching target architecture
           pip install --force-reinstall --only-binary :all: pillow
-          pyinstaller --add-data "./macapptree/macapptree:macapptree" --noconfirm --onefile $ARCH_FLAG dump-tree.py
+          if [ "${{ matrix.platform }}" = "macos-arm" ]; then
+            pyinstaller --add-data "./macapptree/macapptree:macapptree" --noconfirm --onefile $ARCH_FLAG dump-tree.py
+          fi
+          if [ "${{ matrix.platform }}" = "macos-x64" ]; then
+            arch --x86_64 pyinstaller --add-data "./macapptree/macapptree:macapptree" --noconfirm --onefile $ARCH_FLAG dump-tree.py
+          fi
           TARGET_DIR="../target/macos-$([[ "${{ matrix.platform }}" = "macos-arm" ]] && echo "arm64" || echo "x64")"
           mkdir -p "$TARGET_DIR"
           cp dist/dump-tree "$TARGET_DIR/"
