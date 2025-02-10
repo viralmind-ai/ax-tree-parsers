@@ -54,11 +54,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        if: matrix.platform == 'windows' || contains(matrix.platform, 'macos')
+      - name: Set up Python (Windows)
+        if: matrix.platform == 'windows'
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
+
+      - name: Set up Python (MacOS)
+        if: contains(matrix.platform, 'macos')
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          architecture: ${{ contains(matrix.platform, 'x64') && 'x64' || 'arm64' }}
 
       - name: Set up Node.js
         if: matrix.platform == 'linux'
@@ -88,7 +95,7 @@ jobs:
           python -m pip install pyinstaller --no-cache-dir
 
           echo "Building executable with PyInstaller..."
-          python -m PyInstaller --onefile --noconfirm --clean --log-level DEBUG dump-tree.py
+          python -m PyInstaller --onefile --noconfirm --clean --log-level INFO dump-tree.py
           if ($LASTEXITCODE -ne 0) {
             echo "PyInstaller failed with exit code $LASTEXITCODE"
             exit $LASTEXITCODE
@@ -106,7 +113,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path ../target/windows-x64
 
           echo "Copying executable to target..."
-          Copy-Item -Path dist/dump-tree.exe -Destination ../target/windows-x64/ -Verbose
+          Copy-Item -Path dist/dump-tree.exe -Destination ../target/windows-x64/
           if (-not (Test-Path "../target/windows-x64/dump-tree.exe")) {
             echo "ERROR: Failed to copy executable to target directory"
             exit 1
