@@ -10,3 +10,5 @@ out.json
 
 # Binary output directory
 target/*
+
+venv/
