@@ -82,18 +82,37 @@ jobs:
         if: matrix.platform == 'windows'
         run: |
           cd win-ax
+          echo "Installing dependencies..."
           python -m pip install --upgrade pip
-          # Install requirements with verbose output and retry
-          python -m pip install -v -r requirements.txt || python -m pip install -v -r requirements.txt
-          python -m pip install -v pyinstaller
-          # Add verbose output and no confirm flag
-          python -m PyInstaller --onefile --noconfirm --clean -v dump-tree.py
+          python -m pip install -r requirements.txt --no-cache-dir
+          python -m pip install pyinstaller --no-cache-dir
+
+          echo "Building executable with PyInstaller..."
+          python -m PyInstaller --onefile --noconfirm --clean --log-level DEBUG dump-tree.py
           if ($LASTEXITCODE -ne 0) {
             echo "PyInstaller failed with exit code $LASTEXITCODE"
             exit $LASTEXITCODE
           }
+
+          echo "Verifying build output..."
+          if (-not (Test-Path "dist/dump-tree.exe")) {
+            echo "ERROR: PyInstaller did not create dist/dump-tree.exe"
+            echo "Contents of dist directory:"
+            Get-ChildItem dist/
+            exit 1
+          }
+
+          echo "Creating target directory..."
           New-Item -ItemType Directory -Force -Path ../target/windows-x64
-          Copy-Item dist/dump-tree.exe ../target/windows-x64/
+
+          echo "Copying executable to target..."
+          Copy-Item -Path dist/dump-tree.exe -Destination ../target/windows-x64/ -Verbose
+          if (-not (Test-Path "../target/windows-x64/dump-tree.exe")) {
+            echo "ERROR: Failed to copy executable to target directory"
+            exit 1
+          }
+
+          echo "Windows build completed successfully"
         shell: pwsh
 
       - name: Build Linux
