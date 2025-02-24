@@ -63,9 +63,7 @@ def gen_window_ids(
 
     for num, owner, window_name, (x, y, width, height) in gen_ids_from_info(windows):
         if parent == owner.lower():
-            if window_name == STATUS_BAR_WINDOW_IDENTIFIER:
-                print(f"Skipping status bar window: {num}")
-            else:
+            if window_name != STATUS_BAR_WINDOW_IDENTIFIER:
                 window_name = window_name.replace(" ", "_")
                 result.append((num, window_name, (x, y, width, height)))
 
@@ -207,8 +205,6 @@ def screenshot_windows(
 # generate window ids
 def gen_windows(application_name: str) -> List[int]:  # Changed return type to List[int]
     windows = list(gen_window_ids(application_name))  # Convert generator to list
-    if not windows:  # Check if the list is empty
-        print(f"Window with parent {application_name} not found.")
     return windows  # Return the list of windows
 
 

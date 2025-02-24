@@ -22,12 +22,10 @@ def extract_with_hit_test(window, app_bundle, output_file, print_nodes, max_dept
     window_offset_x = window.position.x
     window_offset_y = window.position.y
 
-    print("Parsing window using hit test")
     point = AppKit.NSMakePoint(window_offset_x + 50, window_offset_y + 50)
     group_element = hit_test(point, window)
 
     if group_element is None:
-        print("Hit test failed")
         return False
 
     # find the root window
