@@ -30,15 +30,18 @@ def get_accessibility_tree():
 
     out = []
     for app in app_names:
-        bundle = get_app_bundle(app)
-        out.append({
-            'name': app,
-            'role': 'application',
-            'description': '',
-            'value': '',
-            'bbox': {'x': 0, 'y': 0, 'width': 0, 'height': 0},
-            'children': get_tree(bundle)
-        })
+        try:
+            bundle = get_app_bundle(app)
+            out.append({
+                'name': app,
+                'role': 'application',
+                'description': '',
+                'value': '',
+                'bbox': {'x': 0, 'y': 0, 'width': 0, 'height': 0},
+                'children': get_tree(bundle)
+            })
+        except:
+           pass 
     
     return out
 

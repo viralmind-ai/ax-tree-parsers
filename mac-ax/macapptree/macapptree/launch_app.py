@@ -14,6 +14,5 @@ if __name__ == "__main__":
     if not apps.check_app_running(workspace, app_bundle):
         try:
             apps.launch_app(app_bundle)
-            print(f"Successfully launched {app_bundle}")
         except Exception as e:
             pass
