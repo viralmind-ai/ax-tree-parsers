@@ -24,17 +24,21 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          git fetch --tags
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          # Remove 'v' prefix for calculation
-          VERSION_NUM=${LATEST_TAG#v}
-          MAJOR=$(echo $VERSION_NUM | cut -d. -f1)
-          MINOR=$(echo $VERSION_NUM | cut -d. -f2)
-          PATCH=$(echo $VERSION_NUM | cut -d. -f3)
-          NEW_PATCH=$((PATCH + 1))
-          # Output without 'v' prefix - will be added in release step
-          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          # Get latest tag or set to v0.0.0 if no tags exist
+          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $latest_tag"
+
+          # Extract version numbers
+          version=$(echo $latest_tag | sed 's/v//')
+          major=$(echo $version | cut -d. -f1)
+          minor=$(echo $version | cut -d. -f2)
+          patch=$(echo $version | cut -d. -f3)
+
+          # Increment patch version
+          new_patch=$((patch + 1))
+          new_tag="v$major.$minor.$new_patch"
+          echo "version=$new_tag" >> $GITHUB_OUTPUT
+          echo "New tag will be: $new_tag"
         shell: bash
 
   build:
@@ -196,38 +200,38 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-          
+
       - name: Display structure of downloaded files
         run: ls -R artifacts/
-        
+
       - name: Prepare Release Files
         run: |
           mkdir -p release_files
-          
+
           echo "Copying Windows executable..."
           cp "artifacts/dump-tree-${{ needs.version.outputs.version }}-windows-x64.exe/dump-tree-${{ needs.version.outputs.version }}-windows-x64.exe" release_files/ || {
             echo "Failed to copy Windows executable"
             exit 1
           }
-          
+
           echo "Copying Linux script..."
           cp "artifacts/dump-tree-${{ needs.version.outputs.version }}-linux-x64-arm64.js/dump-tree-${{ needs.version.outputs.version }}-linux-x64-arm64.js" release_files/ || {
             echo "Failed to copy Linux script"
             exit 1
           }
-          
+
           echo "Copying macOS x64 binary..."
           cp "artifacts/dump-tree-${{ needs.version.outputs.version }}-macos-x64/dump-tree-${{ needs.version.outputs.version }}-macos-x64" release_files/ || {
             echo "Failed to copy macOS x64 binary"
             exit 1
           }
-          
+
           echo "Copying macOS arm64 binary..."
           cp "artifacts/dump-tree-${{ needs.version.outputs.version }}-macos-arm64/dump-tree-${{ needs.version.outputs.version }}-macos-arm64" release_files/ || {
             echo "Failed to copy macOS arm64 binary"
             exit 1
           }
-          
+
           echo "Release files prepared:"
           ls -la release_files/
 
