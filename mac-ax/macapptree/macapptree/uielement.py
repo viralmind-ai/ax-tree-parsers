@@ -120,7 +120,6 @@ class UIElement:
 
         # set component center
         if start_position is None or self.size is None:
-            print("Position is None")
             return
         self.center = (
             start_position.x + offset_x + self.size.width / 2,
