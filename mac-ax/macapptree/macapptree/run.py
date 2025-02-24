@@ -8,8 +8,17 @@ import os
 
 def get_app_bundle(app_name):
     command = ['osascript', '-e', f'id of app "{app_name}"']
-    bundle = subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8')[:-1]
-    return bundle
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        
+        if result.returncode != 0:
+            return None
+        
+        bundle = result.stdout.decode('utf-8').strip()
+        return bundle
+        
+    except Exception:
+        return None
 
 
 def launch_app(app_bundle):

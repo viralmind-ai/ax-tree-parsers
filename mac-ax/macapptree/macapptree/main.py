@@ -25,6 +25,9 @@ def main(app_bundle, output_accessibility_file, output_screenshot_file, max_dept
     workspace = AppKit.NSWorkspace.sharedWorkspace()
 
     app = apps.application_for_bundle(app_bundle, workspace)
+    
+    if not app:
+        return
 
     application = apps.application_for_process_id(app.processIdentifier())
 
