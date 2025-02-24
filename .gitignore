@@ -9,6 +9,6 @@ out.json
 **/__pycache__/
 
 # Binary output directory
-target/*
+target
 
 venv/

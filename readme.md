@@ -19,7 +19,7 @@ Use the build script for your desired operating system:
 ```bash
 ./build.sh --platform windows
 ./build.sh --platform linux
-./build.sh --platform macos-arm64
+./build.sh --platform macos-arm
 ./build.sh --platform macos-x64
 ```
 
@@ -54,12 +54,12 @@ All scripts output a JSON tree with the following format.
 ```json
 [
   {
-      "name": "item_name",
-      "role": "item_role",
-      "description": "item_desc",
-      "value": "item_value",
-      "bbox": { "x": 0, "y": 0, "width": 0 , "height": 0 },
-      "children": ["new_tree_item"]
+    "name": "item_name",
+    "role": "item_role",
+    "description": "item_desc",
+    "value": "item_value",
+    "bbox": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "children": ["new_tree_item"]
   }
 ]
 ```
@@ -70,79 +70,79 @@ All scripts output a JSON tree with the following format.
 
 1. Make sure you have all dependencies installed.
 
-    ```bash
-    sudo apt-get install \
-      gjs \
-      build-essential git \
-      gobject-introspection \
-      libgirepository1.0-dev \
-      libcairo2 \
-      libcairo2-dev
-    ```
+   ```bash
+   sudo apt-get install \
+     gjs \
+     build-essential git \
+     gobject-introspection \
+     libgirepository1.0-dev \
+     libcairo2 \
+     libcairo2-dev
+   ```
 
 2. Build the GTK+ JS file from typescript.
 
-    ```bash
-    # make sure npm deps are installed
-    npm install
-    npm run build
-    ```
+   ```bash
+   # make sure npm deps are installed
+   npm install
+   npm run build
+   ```
 
 3. Run the GTK+ JS file.
 
-    ```bash
-    npm start
-    ```
+   ```bash
+   npm start
+   ```
 
-## mac-ax:  [MacOS Accessibility](https://developer.apple.com/documentation/accessibility)
+## mac-ax: [MacOS Accessibility](https://developer.apple.com/documentation/accessibility)
 
 ### Development
 
 1. Setup your virtal python env of choice.
 
-    ```bash
-    # conda
-    conda create --name mac-at python=3.9
-    conda activate mac-at
-    # or others
-    ```
+   ```bash
+   # conda
+   conda create --name mac-at python=3.9
+   conda activate mac-at
+   # or others
+   ```
 
 2. Install the requirements for `macapptree` and build the package.
 
-    ```bash
-    cd macapptree
-    pip3 install -r requirements.txt
-    pip3 install -e .
-    ```
+   ```bash
+   cd macapptree
+   pip3 install -r requirements.txt
+   pip3 install -e .
+   ```
 
 3. Run the script and output to `tree.json`
 
-    ```bash
-    python3 dump-tree.py -o tree.json
-    ```
+   ```bash
+   python3 dump-tree.py -o tree.json
+   ```
 
-## win-ax:  [Windows UIA](https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview)
+## win-ax: [Windows UIA](https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview)
 
 ### Development
 
 1. Setup your virtal python env of choice.
 
-    ```bash
-    # conda
-    conda create --name win-ax python=3.9
-    conda activate win-ax
-    # or others
-    ```
+   ```bash
+   # conda
+   conda create --name win-ax python=3.9
+   conda activate win-ax
+   # or others
+   ```
 
 2. Install requirements.
 
-    ```bash
-    cd win-ax
-    pip3 install -r requirements.txt
-    ```
+   ```bash
+   cd win-ax
+   pip3 install -r requirements.txt
+   ```
 
 3. Run the script and output to `tree.json`
 
-    ```bash
-    python3 dump-tree.py -o tree.json
-    ```
+   ```bash
+   python3 dump-tree.py -o tree.json
+   ```
