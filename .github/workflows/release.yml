@@ -209,7 +209,7 @@ jobs:
           mkdir -p release_files
 
           echo "Copying Windows executable..."
-          cp "artifacts/dump-tree--windows-x64.exe/dump-tree-windows-x64.exe" release_files/ || {
+          cp "artifacts/dump-tree-windows-x64.exe/dump-tree-windows-x64.exe" release_files/ || {
             echo "Failed to copy Windows executable"
             exit 1
           }
