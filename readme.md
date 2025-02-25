@@ -1,4 +1,5 @@
 # Accessibility Tree Parsers
+[![Build](https://github.com/viralmind-ai/ax-tree-parsers/actions/workflows/release.yml/badge.svg)](https://github.com/viralmind-ai/ax-tree-parsers/actions/workflows/release.yml)
 
 This repository contains scripts to extract the accessibility trees from three of the more popular operating system desktops.
 
