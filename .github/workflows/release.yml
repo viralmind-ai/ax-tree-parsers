@@ -240,7 +240,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ needs.version.outputs.version }}
-          name: Release v${{ needs.version.outputs.version }}
+          name: Release ${{ needs.version.outputs.version }}
           draft: false
           prerelease: false
           files: release_files/*
