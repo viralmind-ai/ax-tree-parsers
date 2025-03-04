@@ -199,7 +199,7 @@ def get_element_info(control, executor=None, path=''):
                     "description": getattr(current_control.element_info, 'description', ''),
                     "value": get_control_value(current_control),
                     "bbox": bbox,
-                    # "states": get_control_states(current_control),
+                    "states": get_control_states(current_control),
                     "children": []
                 }
                 
